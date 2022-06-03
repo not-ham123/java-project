@@ -74,4 +74,5 @@ public class Article
     {
         this.linkToArticle = linkToArticle;
     }
+    
 }
