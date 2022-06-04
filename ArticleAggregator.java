@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public interface ArticleAggregator {
+public interface ArticleAggregator 
+{
 
     public Map<Category, List<Article>> getCategorizedArticles();
 
