@@ -1,5 +1,61 @@
 package com.fun.scrapescrapefx;
 
-public class ArticleViewController 
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class ArticleViewController implements Initializable 
 {
+
+    @FXML
+    private Label articleTitle;
+
+    @FXML
+    private TextArea articleText;
+
+    @FXML
+    private ImageView firstArticleImage;
+
+    @FXML
+    private ImageView secondArticleImage;
+
+    @FXML
+    private Button backButton;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) 
+    {
+    }
+
+    public void setArticleTitle(String articleTitleString) 
+    {
+        articleTitle.setText(articleTitleString);
+    }
+    public void setArticleText(String articleTextString) 
+    {
+        articleText.setText(articleTextString);
+    }
+
+    public void backToArticleListView(ActionEvent event) throws IOException 
+    {
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/fun/scrapescrapefx/main-table-view.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
 }
