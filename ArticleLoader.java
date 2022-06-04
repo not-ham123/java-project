@@ -1,5 +1,11 @@
 package com.fun.scrapescrapefx;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.stage.Stage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -7,19 +13,26 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ArticleLoader {
 
-    public List<Article> generateVnExpressArticleLinkFromRSS(String rssFeedUrl) {
+    private Stage stage;
+    private Scene scene;
+    private Parent root;
+
+    public List<Article> generateVnExpressArticleDataFromRSSLink(String rssFeedUrl) throws IOException {
         ArrayList<Article> articleArrayList = new ArrayList<>();
         Document document = attemptToConnectToUrl(rssFeedUrl);
+        int maximumNumberOfArticles = 50;
 
         if (document != null) {
             Elements itemsOnPageElements = document.select("item");
 
-            for (int i = 0; i < Math.min(itemsOnPageElements.size(), 50); i++) {
+            for (int i = 0; i < Math.min(itemsOnPageElements.size(), maximumNumberOfArticles); i++) {
 
                 Element currentItem = itemsOnPageElements.get(i);
+
 
                 String description = currentItem.select("description").text();
                 if (!description.contains("img src=")) {
@@ -36,7 +49,29 @@ public class ArticleLoader {
                 articleToAdd.setTitle(currentItem.select("title").text());
                 articleToAdd.setSource("VN Express");
                 articleToAdd.setTimeSincePosted(currentItem.select("pubdate").text());
-                articleToAdd.setLinkToArticle(currentItem.select("link").text());
+
+                Button buttonToNavigateToFullArticle = new Button();
+                buttonToNavigateToFullArticle.setText("Open");
+                buttonToNavigateToFullArticle.setMinWidth(100.0);
+                buttonToNavigateToFullArticle.setOnAction(
+                        event -> {
+                            try {
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/fun/scrapescrapefx/article-detail-view.fxml"));
+                                root = loader.load();
+
+                                ArticleViewController articleViewController = loader.getController();
+                                articleViewController.setArticleText(generateVnExpressFullArticleText(currentItem.select("link").text()));
+                                articleViewController.setArticleTitle(currentItem.select("title").text());
+
+                                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                                scene = new Scene(root);
+                                stage.setScene(scene);
+                                stage.show();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                articleToAdd.setNavigateToFullArticleButton(buttonToNavigateToFullArticle);
 
                 articleArrayList.add(articleToAdd);
             }
@@ -45,136 +80,44 @@ public class ArticleLoader {
         return articleArrayList;
     }
 
-    public List<Article> generateZingNewsArticleLinkFromURL(String url) {
-        ArrayList<Article> articleArrayList = new ArrayList<>();
-        Document document = attemptToConnectToUrl(url);
+    public String generateVnExpressFullArticleText(String fullArticleUrl) {
+        String fullArticle = "";
+
+        Document document = attemptToConnectToUrl(fullArticleUrl);
 
         if (document != null) {
-            Elements itemsOnPageElements = document.select("item");
+            Elements fullArticleElements = document.select("article");
 
-            for (int i = 0; i < Math.min(itemsOnPageElements.size(), 50); i++) {
-
-                Element currentItem = itemsOnPageElements.get(i);
-
-                Article articleToAdd = new Article();
-
-                articleToAdd.setTitle(currentItem.select("p.article-title a[href]").text());
-                articleToAdd.setSource("VN Express");
-                articleToAdd.setTimeSincePosted(currentItem.select("p.article-meta").select("span.date").text());
-                articleToAdd.setLinkToArticle(currentItem.select("p.article-title a[href]").attr("abs:href"));
-
-                articleArrayList.add(articleToAdd);
-            }
+            fullArticle = fullArticleElements.stream()
+                    .map(element -> element.getElementsByClass("Normal").html())
+                    .collect(Collectors.joining("\n"));
         }
-
-        return articleArrayList;
+        return fullArticle;
     }
 
-    public List<Article> generateTuoiTreiArticleLinkFromRSS(String rssFeedUrl) {
-        ArrayList<Article> articleArrayList = new ArrayList<>();
-        Document document = attemptToConnectToUrl(rssFeedUrl);
+    // TODO
+//    public List<Article> generateZingNewsArticleDataFromRSSLink(String url) {
+//        ArrayList<Article> articleArrayList = new ArrayList<>();
+//        return articleArrayList;
+//    }
 
-        if (document != null) {
-            Elements itemsOnPageElements = document.select("item");
+    // TODO
+//    public List<Article> generateTuoiTreiArticleDataFromRSSLink(String rssFeedUrl) {
+//        ArrayList<Article> articleArrayList = new ArrayList<>();
+//        return articleArrayList;
+//    }
 
-            for (int i = 0; i < Math.min(itemsOnPageElements.size(), 50); i++) {
+    // TODO
+//    public List<Article> generateThanhNienArticleDataFromRSSLink(String rssFeedUrl) {
+//        ArrayList<Article> articleArrayList = new ArrayList<>();
+//        return articleArrayList;
+//    }
 
-                Element currentItem = itemsOnPageElements.get(i);
-
-                String description = currentItem.select("description").text();
-                if (!description.contains("img src=")) {
-                    continue;
-                }
-
-                Article articleToAdd = new Article();
-
-                int startingIndexOfThumbnailLink = description.indexOf("img src=");
-                int endingIndexOfThumbnailLink = description.indexOf("\" ", startingIndexOfThumbnailLink + 1);
-                int offsetToRemoveImgTagAndAttributeName = 9;
-                articleToAdd.setLinkToHeaderPicture(description.substring(startingIndexOfThumbnailLink + offsetToRemoveImgTagAndAttributeName, endingIndexOfThumbnailLink));
-
-                articleToAdd.setTitle(currentItem.select("title").text());
-                articleToAdd.setSource("Tuoi Trei");
-                articleToAdd.setTimeSincePosted(currentItem.select("pubdate").text());
-                articleToAdd.setLinkToArticle(currentItem.select("link").text());
-
-                articleArrayList.add(articleToAdd);
-            }
-        }
-
-        return articleArrayList;
-    }
-
-    public List<Article> generateThanhNienArticleLinkFromRSS(String rssFeedUrl) {
-        ArrayList<Article> articleArrayList = new ArrayList<>();
-        Document document = attemptToConnectToUrl(rssFeedUrl);
-
-        if (document != null) {
-            Elements itemsOnPageElements = document.select("item");
-
-            for (int i = 0; i < Math.min(itemsOnPageElements.size(), 50); i++) {
-
-                Element currentItem = itemsOnPageElements.get(i);
-
-                String description = currentItem.select("description").text();
-                if (!description.contains("img src=")) {
-                    continue;
-                }
-
-                Article articleToAdd = new Article();
-
-                int startingIndexOfThumbnailLink = description.indexOf("img src=");
-                int endingIndexOfThumbnailLink = description.indexOf("\" ", startingIndexOfThumbnailLink + 1);
-                int offsetToRemoveImgTagAndAttributeName = 9;
-                articleToAdd.setLinkToHeaderPicture(description.substring(startingIndexOfThumbnailLink + offsetToRemoveImgTagAndAttributeName, endingIndexOfThumbnailLink));
-
-                articleToAdd.setTitle(currentItem.select("title").text());
-                articleToAdd.setSource("Thanh Nien");
-                articleToAdd.setTimeSincePosted(currentItem.select("pubdate").text());
-                articleToAdd.setLinkToArticle(currentItem.select("link").text());
-
-                articleArrayList.add(articleToAdd);
-            }
-        }
-
-        return articleArrayList;
-    }
-
-    public List<Article> generateNhanDanArticleLinkFromURL(String url) {
-        ArrayList<Article> articleArrayList = new ArrayList<>();
-        Document document = attemptToConnectToUrl(url);
-
-        if (document != null) {
-            Elements itemsOnPageElements = document.select("item");
-
-            for (int i = 0; i < Math.min(itemsOnPageElements.size(), 50); i++) {
-
-                Element currentItem = itemsOnPageElements.get(i);
-
-                String description = currentItem.select("description").text();
-                if (!description.contains("img src=")) {
-                    continue;
-                }
-
-                Article articleToAdd = new Article();
-
-                int startingIndexOfThumbnailLink = description.indexOf("img src=");
-                int endingIndexOfThumbnailLink = description.indexOf("\" ", startingIndexOfThumbnailLink + 1);
-                int offsetToRemoveImgTagAndAttributeName = 9;
-                articleToAdd.setLinkToHeaderPicture(description.substring(startingIndexOfThumbnailLink + offsetToRemoveImgTagAndAttributeName, endingIndexOfThumbnailLink));
-
-                articleToAdd.setTitle(currentItem.select("title").text());
-                articleToAdd.setSource("Nhan Dan");
-                articleToAdd.setTimeSincePosted(currentItem.select("pubdate").text());
-                articleToAdd.setLinkToArticle(currentItem.select("link").text());
-
-                articleArrayList.add(articleToAdd);
-            }
-        }
-
-        return articleArrayList;
-    }
-
+    // TODO
+//    public List<Article> generateNhanDanArticleDataFromRSSLink(String url) {
+//        ArrayList<Article> articleArrayList = new ArrayList<>();
+//        return articleArrayList;
+//    }
 
     public Document attemptToConnectToUrl(String url) {
         Document document = null;
