@@ -1,53 +1,27 @@
 package com.fun.scrapescrapefx;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
-public class HelloApplication extends Application 
-{
-
-    Stage window;
+public class HelloApplication extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws IOException 
-    {
-        window = primaryStage;
-        window.setTitle("Scrape Scraper Bean");
+    public void start(Stage primaryStage) throws IOException {
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/com/fun/scrapescrapefx/main-table-view.fxml")));
+        Scene scene = new Scene(root);
 
-        ArticleLoader articleLoader = new ArticleLoader();
-        ArticleAggregator articleAggregator = new ArticleAggregator(articleLoader);
-        articleAggregator.aggregateArticles();
-        Map<Category, List<Article>> aggregatedArticles = articleAggregator.getCategorizedVnExpressArticles();
-
-        Button button = new Button();
-        ButtonBar buttonBar = new ButtonBar();
-//        Image image = new Image("");
-        TabPane tabPane = new TabPane();
-        Pagination pagination = new Pagination();
-
-        TableColumn<String, String> aColumn;
-        TableColumn<String, String> anotherColumn;
-        TableColumn<String, String> yetAnotherColumn;
-
-        TableView tableView = new TableView<>();
-
-        VBox vBox = new VBox(tableView);
-        vBox.getChildren().addAll();
-
-        Scene scene = new Scene(vBox);
-        window.setScene(scene);
-        window.show();
+        primaryStage.setTitle("News Web Scraper");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    public static void main(String[] args) 
-    {
+    public static void main(String[] args) {
         launch();
     }
 }
