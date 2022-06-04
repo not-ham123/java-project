@@ -1,8 +1,7 @@
 package com.fun.scrapescrapefx;
+import javafx.scene.control.Button;
 
-public class Article 
-    
-{
+public class Article {
 
     private String title;
 
@@ -13,66 +12,62 @@ public class Article
     private String timeSincePosted;
     private String linkToArticle;
 
+    private Button navigateToFullArticleButton;
 
 
-    public String getText() 
-    {
+    public String getText() {
         return text;
     }
 
-    public void setText(String text) 
-    {
+    public void setText(String text) {
         this.text = text;
     }
 
-    public String getLinkToHeaderPicture() 
-    {
+    public String getLinkToHeaderPicture() {
         return linkToHeaderPicture;
     }
 
-    public void setLinkToHeaderPicture(String linkToHeaderPicture) 
-    {
+    public void setLinkToHeaderPicture(String linkToHeaderPicture) {
         this.linkToHeaderPicture = linkToHeaderPicture;
     }
 
-    public String getTitle() 
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) 
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getSource() 
-    {
+    public String getSource() {
         return source;
     }
 
-    public void setSource(String source) 
-    {
+    public void setSource(String source) {
         this.source = source;
     }
 
-    public String getTimeSincePosted() 
-    {
+    public String getTimeSincePosted() {
         return timeSincePosted;
     }
 
-    public void setTimeSincePosted(String timeSincePosted) 
-    {
+    public void setTimeSincePosted(String timeSincePosted) {
         this.timeSincePosted = timeSincePosted;
     }
 
-    public String getLinkToArticle() 
-    {
+    public String getLinkToArticle() {
         return linkToArticle;
     }
 
-    public void setLinkToArticle(String linkToArticle) 
-    {
+    public void setLinkToArticle(String linkToArticle) {
         this.linkToArticle = linkToArticle;
     }
-    
+
+    public Button getNavigateToFullArticleButton() {
+        return navigateToFullArticleButton;
+    }
+
+    public void setNavigateToFullArticleButton(Button navigateToFullArticleButton) {
+        this.navigateToFullArticleButton = navigateToFullArticleButton;
+    }
 }
